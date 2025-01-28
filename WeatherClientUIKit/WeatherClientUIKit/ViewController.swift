@@ -100,7 +100,6 @@ class ViewController: UIViewController {
         
         NSLayoutConstraint.activate(cityConstraint)
         
-        //toggleFields(for: segmentedControl.selectedSegmentIndex)
 
     }
     
@@ -108,12 +107,6 @@ class ViewController: UIViewController {
         searchButton.addTarget(self, action: #selector(searchButtonAction), for: .touchUpInside)
         segmentedControl.addTarget(self, action: #selector(segmentControValueChange), for: .valueChanged)
     }
-    
-//    private func toggleFields(for index: Int) {
-//        cityTextField.isHidden = index != 0
-//        longitudeUITextField.isHidden = index == 0
-//        latitudeTextField.isHidden = index == 0
-//    }
     
     @objc func segmentControValueChange(_ sender: UISegmentedControl){
 //        toggleFields(for: sender.selectedSegmentIndex)
@@ -183,7 +176,11 @@ class ViewController: UIViewController {
             
             do {
                 let decodeData = try JSONDecoder().decode(CityResult.self, from: responseData)
-                print(decodeData)
+//                print(decodeData)
+                
+                DispatchQueue.main.async {
+                    self.showWeatherDetails(with: decodeData)
+                }
                 
             } catch(let parseError){
                 print(parseError)
@@ -220,6 +217,10 @@ class ViewController: UIViewController {
                 let decodeData = try JSONDecoder().decode(CityResult.self, from: responseData)
                 print(decodeData)
                 
+                DispatchQueue.main.async {
+                    self.showWeatherDetails(with: decodeData)
+                }
+                
             } catch(let parseError) {
                 print(parseError)
             }
@@ -227,6 +228,12 @@ class ViewController: UIViewController {
         task.resume()
         
         print("Fetching weather for latitude: \(latitude), longitude: \(longitude)")
+    }
+    
+    private func showWeatherDetails(with data: CityResult) {
+        let detailVC = WeatherDetailViewController()
+        detailVC.weatherData = data
+        present(detailVC, animated: true, completion: nil)
     }
 
 
