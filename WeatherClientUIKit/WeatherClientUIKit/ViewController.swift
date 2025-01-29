@@ -7,6 +7,15 @@
 
 import UIKit
 
+enum ConstantLink: String {
+    case mainLink = "https://api.openweathermap.org/data/2.5/weather?"
+    case city = "q="
+    case latitude = "lat="
+    case longitude = "lon="
+    case appid = "appid=9150ef8248678c9c51a5dfe2d87e208d"
+    case metrics = "units=metric"
+}
+
 class ViewController: UIViewController {
     
     private let cityTextField: UITextField = {
@@ -109,7 +118,6 @@ class ViewController: UIViewController {
     }
     
     @objc func segmentControValueChange(_ sender: UISegmentedControl){
-//        toggleFields(for: sender.selectedSegmentIndex)
         
         if segmentedControl.selectedSegmentIndex == 0 {
             cityTextField.isHidden = false
@@ -154,7 +162,7 @@ class ViewController: UIViewController {
     }
     
     private func fetchWeather(byCyti city: String) {
-        let linkApi = "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=9150ef8248678c9c51a5dfe2d87e208d&units=metric"
+        let linkApi = ConstantLink.mainLink.rawValue + ConstantLink.city.rawValue + "\(city)" + "&" + ConstantLink.appid.rawValue + "&" + ConstantLink.metrics.rawValue
         
         guard let url = URL(string: linkApi) else {
             assertionFailure("Wrong link Api \(linkApi)")
@@ -175,7 +183,7 @@ class ViewController: UIViewController {
             }
             
             do {
-                let decodeData = try JSONDecoder().decode(CityResult.self, from: responseData)
+                let decodeData = try JSONDecoder().decode(WeatherResult.self, from: responseData)
 //                print(decodeData)
                 
                 DispatchQueue.main.async {
@@ -193,7 +201,8 @@ class ViewController: UIViewController {
     
     private func fetchWeather(byLatitude latitude: String, byLongitude longitude: String) {
         
-        let linkApi = "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=9150ef8248678c9c51a5dfe2d87e208d&units=metric"
+        let linkApi = ConstantLink.mainLink.rawValue + ConstantLink.latitude.rawValue + "\(latitude)" + "&" + ConstantLink.longitude.rawValue + "\(longitude)" + "&" + ConstantLink.appid.rawValue + "&" + ConstantLink.metrics.rawValue
+        
         
         guard let url = URL(string: linkApi) else {
             assertionFailure("Wring url link: \(linkApi)")
@@ -214,7 +223,7 @@ class ViewController: UIViewController {
             }
             
             do {
-                let decodeData = try JSONDecoder().decode(CityResult.self, from: responseData)
+                let decodeData = try JSONDecoder().decode(WeatherResult.self, from: responseData)
                 print(decodeData)
                 
                 DispatchQueue.main.async {
@@ -230,7 +239,7 @@ class ViewController: UIViewController {
         print("Fetching weather for latitude: \(latitude), longitude: \(longitude)")
     }
     
-    private func showWeatherDetails(with data: CityResult) {
+    private func showWeatherDetails(with data: WeatherResult) {
         let detailVC = WeatherDetailViewController()
         detailVC.weatherData = data
         present(detailVC, animated: true, completion: nil)

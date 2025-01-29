@@ -8,6 +8,8 @@
 
 import UIKit
 
+
+
 class WeatherDetailViewController: UIViewController {
     
     private let temperatureLable: UILabel = {
@@ -46,7 +48,7 @@ class WeatherDetailViewController: UIViewController {
         return lable
     }()
     
-    var weatherData: CityResult?
+    var weatherData: WeatherResult?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,16 +93,38 @@ class WeatherDetailViewController: UIViewController {
         guard let weatherData = weatherData else {
             return
         }
-        
-        temperatureLable.text = "\(weatherData.main.temp)"
-        pressureLable.text = "\(weatherData.main.pressure)"
-        humidityLable.text = "\(weatherData.main.humidity)"
-        descriptionLable.text = "\(weatherData.weather[0].description)"
-        windLable.text = "\(weatherData.wind.deg)"
-        
-        
-        
+        temperatureLable.text = "Temperature: \(weatherData.main.temp) C"
+        pressureLable.text = "Preasure: \(weatherData.main.pressure)"
+        humidityLable.text = "Humidity: \(weatherData.main.humidity)"
+        descriptionLable.text = "Weather: \(weatherData.weather[0].description)"
+        windLable.text = "Wind: \(windDirection(deg: weatherData.wind.deg))"
+
     }
+    
+    private func windDirection(deg: Int) -> String {
+        switch deg {
+        case 337...360, 0..<22:
+            return "North"
+        case 22..<67:
+            return "North-East"
+        case 67..<112:
+            return "East"
+        case 112..<157:
+            return "South-East"
+        case 157..<202:
+            return "South"
+        case 202..<247:
+            return "South-West"
+        case 247..<292:
+            return "West"
+        case 292..<337:
+            return "North-West"
+        default:
+            return "Unknown"
+        }
+
+    }
+
     
     
     

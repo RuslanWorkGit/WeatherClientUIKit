@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CityResult: Codable {
+struct WeatherResult: Codable {
     
     let coord: CityCoordainates
     let weather: [WeatherInfo]
