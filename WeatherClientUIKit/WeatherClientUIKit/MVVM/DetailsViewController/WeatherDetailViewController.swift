@@ -124,9 +124,4 @@ class WeatherDetailViewController: UIViewController {
         }
 
     }
-
-    
-    
-    
-    
 }
