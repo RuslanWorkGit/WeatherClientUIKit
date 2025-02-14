@@ -1,9 +1,11 @@
 //
-//  Data.swift
+//  WeatherModel.swift
 //  WeatherClientUIKit
 //
-//  Created by Ruslan Liulka on 28.01.2025.
+//  Created by Ruslan Liulka on 15.02.2025.
 //
+
+
 
 import Foundation
 
