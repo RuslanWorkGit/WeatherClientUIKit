@@ -10,8 +10,17 @@ import Foundation
 class WeatherViewModel {
     
     private let networkManager = NetworkManager.shared
+    private let fileName = "WeatherData.json"
+    
+    private let fileService: FileServiceProtocol
+    
+    init(fileService: FileServiceProtocol = FileService()) {
+        self.fileService = fileService
+    }
     
     var updateWeatherInfo: ((WeatherResult) -> Void)?
+    
+    
     
     var selectedSegment: Int = 0 {
         didSet {
@@ -35,6 +44,14 @@ class WeatherViewModel {
                 self?.updateWeatherInfo?(result)
             }
         }
+    }
+    
+    func saveData() {
+        
+    }
+    
+    func loadData() {
+        
     }
     
 }
