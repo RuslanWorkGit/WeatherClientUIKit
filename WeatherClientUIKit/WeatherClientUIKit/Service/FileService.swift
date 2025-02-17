@@ -16,14 +16,14 @@ class FileService: FileServiceProtocol {
     
     let fileManager = FileManager.default
     
-    func save<T>(object: T, fileName: String) throws where T : Encodable {
+    func save<T: Encodable>(object: T, fileName: String) throws {
         let filePathUrl = try getDocumentDirectori().appendingPathComponent(fileName)
         let data = try JSONEncoder().encode(object)
         try data.write(to: filePathUrl)
         
     }
     
-    func load<T>(type: T.Type, fileName: String) throws -> T where T : Decodable {
+    func load<T: Decodable>(type: T.Type, fileName: String) throws -> T {
         let filePathUrl = try getDocumentDirectori().appendingPathComponent(fileName)
         let data = try Data(contentsOf: filePathUrl)
         let decodeObject = try JSONDecoder().decode(T.self, from: data)
@@ -31,7 +31,9 @@ class FileService: FileServiceProtocol {
     }
     
     private func getDocumentDirectori() throws -> URL {
-        let documentDirectory = fileManager.urls(for: .documentDirectory, in: .allDomainsMask).first!
+        guard let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            throw URLError(.fileDoesNotExist)
+        }
         
         return documentDirectory
     }

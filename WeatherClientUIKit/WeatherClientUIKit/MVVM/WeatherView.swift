@@ -172,7 +172,7 @@ class WeatherView: UIViewController {
     }
     
     private func showWeatherDetails(with data: WeatherResult) {
-        let detailVC = WeatherDetailViewController()
+        let detailVC = WeatherDetailView()
         detailVC.weatherData = data
         navigationController?.pushViewController(detailVC, animated: true)
     }

@@ -8,9 +8,7 @@
 
 import UIKit
 
-
-
-class WeatherDetailViewController: UIViewController {
+class WeatherDetailView: UIViewController {
     
     private let temperatureLable: UILabel = {
         let lable = UILabel()
@@ -52,7 +50,6 @@ class WeatherDetailViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Save", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        //button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -61,19 +58,24 @@ class WeatherDetailViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Load", for: .normal)
         button.setTitleColor(.black, for: .normal)
-        //button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    var weatherData: WeatherResult?
-    private let viewModel = WeatherViewModel()
+    var weatherData: WeatherResult? {
+            didSet {
+                viewModel.weatherData = weatherData
+            }
+        }
+    
+    private let viewModel = WeatherDetailsViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
         updateUI()
+        setupAction()
     }
     
     private func setupUI() {
@@ -121,15 +123,38 @@ class WeatherDetailViewController: UIViewController {
     }
     
     private func updateUI() {
-        guard let weatherData = weatherData else {
+        guard let weatherData = viewModel.weatherData else {
+            temperatureLable.text = "No Data"
             return
         }
+        
         temperatureLable.text = "Temperature: \(weatherData.main.temp) C"
         pressureLable.text = "Preasure: \(weatherData.main.pressure)"
         humidityLable.text = "Humidity: \(weatherData.main.humidity)"
         descriptionLable.text = "Weather: \(weatherData.weather[0].description)"
         windLable.text = "Wind: \(windDirection(deg: weatherData.wind.deg))"
 
+    }
+    
+    private func setupAction() {
+        saveData.addTarget(self, action: #selector(saveAction), for: .touchUpInside)
+        loadData.addTarget(self, action: #selector(loadAction), for: .touchUpInside)
+    }
+    
+    @objc func saveAction() {
+        Task {
+            viewModel.saveWeather()
+        }
+        
+    }
+    
+    @objc func loadAction() {
+        
+        Task {
+            viewModel.loadWeather()
+            updateUI()
+        }
+        
     }
     
     private func windDirection(deg: Int) -> String {
@@ -155,9 +180,5 @@ class WeatherDetailViewController: UIViewController {
         }
 
     }
-
-    
-    
-    
     
 }
