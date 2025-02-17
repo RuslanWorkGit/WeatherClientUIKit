@@ -48,7 +48,26 @@ class WeatherDetailViewController: UIViewController {
         return lable
     }()
     
+    private let saveData: UIButton = {
+        let button = UIButton()
+        button.setTitle("Save", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        //button.backgroundColor = .systemBlue
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    private let loadData: UIButton = {
+        let button = UIButton()
+        button.setTitle("Load", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        //button.backgroundColor = .clear
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     var weatherData: WeatherResult?
+    private let viewModel = WeatherViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +82,8 @@ class WeatherDetailViewController: UIViewController {
         view.addSubview(humidityLable)
         view.addSubview(descriptionLable)
         view.addSubview(windLable)
+        view.addSubview(saveData)
+        view.addSubview(loadData)
         
         NSLayoutConstraint.activate([
             temperatureLable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
@@ -83,7 +104,17 @@ class WeatherDetailViewController: UIViewController {
             
             windLable.topAnchor.constraint(equalTo: descriptionLable.bottomAnchor, constant: 20),
             windLable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            windLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            windLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            loadData.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            loadData.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadData.heightAnchor.constraint(equalToConstant: 50),
+            loadData.widthAnchor.constraint(equalToConstant: 150),
+            
+            saveData.bottomAnchor.constraint(equalTo: loadData.topAnchor, constant: -30),
+            saveData.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            saveData.heightAnchor.constraint(equalToConstant: 50),
+            saveData.widthAnchor.constraint(equalToConstant: 150)
             
             
         ])

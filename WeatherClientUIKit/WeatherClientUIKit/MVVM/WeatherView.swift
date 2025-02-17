@@ -67,6 +67,7 @@ class WeatherView: UIViewController {
         view.addSubview(searchButton)
         view.addSubview(segmentedControl)
         
+        view.backgroundColor = .white
         segmentedControl.selectedSegmentIndex = 0
         
         NSLayoutConstraint.activate([
@@ -173,6 +174,6 @@ class WeatherView: UIViewController {
     private func showWeatherDetails(with data: WeatherResult) {
         let detailVC = WeatherDetailViewController()
         detailVC.weatherData = data
-        present(detailVC, animated: true, completion: nil)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }
