@@ -28,6 +28,7 @@ class FileService: FileServiceProtocol {
         let data = try Data(contentsOf: filePathUrl)
         let decodeObject = try JSONDecoder().decode(T.self, from: data)
         return decodeObject
+        
     }
     
     private func getDocumentDirectori() throws -> URL {
@@ -37,9 +38,4 @@ class FileService: FileServiceProtocol {
         
         return documentDirectory
     }
-    
-    
-
-    
-    
 }

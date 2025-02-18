@@ -40,6 +40,16 @@ class WeatherView: UIViewController {
         return button
     }()
     
+    private let showSaveData: UIButton = {
+        let button = UIButton()
+        button.setTitle("Show saved data", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 10
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     private let segmentedControl: UISegmentedControl = {
         let segmentController = UISegmentedControl(items: ["City", "Coordinates"])
         segmentController.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +59,8 @@ class WeatherView: UIViewController {
     private var cityConstraint: [NSLayoutConstraint] = []
     private var coordinateConstraint: [NSLayoutConstraint] = []
     private var network = NetworkManager.shared
-    
+    private let updateTime: TimeInterval = 3 * 60 * 60
+
     private let viewModel = WeatherViewModel()
 
     override func viewDidLoad() {
@@ -66,6 +77,7 @@ class WeatherView: UIViewController {
         view.addSubview(longitudeUITextField)
         view.addSubview(searchButton)
         view.addSubview(segmentedControl)
+        view.addSubview(showSaveData)
         
         view.backgroundColor = .white
         segmentedControl.selectedSegmentIndex = 0
@@ -73,6 +85,11 @@ class WeatherView: UIViewController {
         NSLayoutConstraint.activate([
             segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             segmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            showSaveData.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            showSaveData.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            showSaveData.widthAnchor.constraint(equalToConstant: 150),
+            showSaveData.heightAnchor.constraint(equalToConstant: 50)
             
         ])
         
@@ -119,6 +136,7 @@ class WeatherView: UIViewController {
     
     private func setupAction() {
         searchButton.addTarget(self, action: #selector(searchButtonAction), for: .touchUpInside)
+        showSaveData.addTarget(self, action: #selector(showSavedDataAction), for: .touchUpInside)
         segmentedControl.addTarget(self, action: #selector(segmentControValueChange), for: .valueChanged)
     }
     
@@ -134,7 +152,6 @@ class WeatherView: UIViewController {
             }
             
             viewModel.fetchByCity(withCity: city)
-            
 
         } else {
             guard let latitude = latitudeTextField.text, !latitude.isEmpty else {
@@ -146,11 +163,16 @@ class WeatherView: UIViewController {
                 assertionFailure("Please enter longitude")
                 return
             }
-
-            viewModel.fetchByCoordinate(latitude: latitude, longitude: longitude)
             
+            viewModel.fetchByCoordinate(latitude: latitude, longitude: longitude)
 
         }
+    }
+    
+    @objc func showSavedDataAction() {
+        let detailVC = WeatherDetailView()
+        detailVC.loadAction()
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     private func segmentUIChange(index: Int) {
@@ -173,6 +195,7 @@ class WeatherView: UIViewController {
     
     private func showWeatherDetails(with data: WeatherResult) {
         let detailVC = WeatherDetailView()
+        //detailVC.setuoFetchClouser(from: viewModel)
         detailVC.weatherData = data
         navigationController?.pushViewController(detailVC, animated: true)
     }

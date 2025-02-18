@@ -13,8 +13,6 @@ class WeatherViewModel {
     
     var updateWeatherInfo: ((WeatherResult) -> Void)?
     
-    
-    
     var selectedSegment: Int = 0 {
         didSet {
             segmentChanged?(selectedSegment)
@@ -39,12 +37,6 @@ class WeatherViewModel {
         }
     }
     
-    func saveData() {
-        
-    }
-    
-    func loadData() {
-        
-    }
+
     
 }

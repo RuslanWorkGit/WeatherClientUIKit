@@ -10,6 +10,13 @@ import UIKit
 
 class WeatherDetailView: UIViewController {
     
+    private let cityLable: UILabel = {
+        let lable = UILabel()
+        lable.textAlignment = .center
+        lable.translatesAutoresizingMaskIntoConstraints = false
+        return lable
+    }()
+    
     private let temperatureLable: UILabel = {
         let lable = UILabel()
         lable.textAlignment = .center
@@ -62,12 +69,16 @@ class WeatherDetailView: UIViewController {
         return button
     }()
     
-    var weatherData: WeatherResult? {
-            didSet {
-                viewModel.weatherData = weatherData
-            }
-        }
+    private let saveTimeLable: UILabel = {
+        let lable = UILabel()
+        lable.textAlignment = .center
+        lable.translatesAutoresizingMaskIntoConstraints = false
+        return lable
+    }()
     
+    var weatherData: WeatherResult?
+    
+    var storedWeather: StoredWeatherData?
     private let viewModel = WeatherDetailsViewModel()
     
     override func viewDidLoad() {
@@ -78,17 +89,30 @@ class WeatherDetailView: UIViewController {
         setupAction()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        checkAndUpdateWeather()
+
+    }
+    
     private func setupUI() {
+        view.addSubview(cityLable)
         view.addSubview(temperatureLable)
         view.addSubview(pressureLable)
         view.addSubview(humidityLable)
         view.addSubview(descriptionLable)
         view.addSubview(windLable)
+        view.addSubview(saveTimeLable)
         view.addSubview(saveData)
         view.addSubview(loadData)
         
         NSLayoutConstraint.activate([
-            temperatureLable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            cityLable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            cityLable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            cityLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            temperatureLable.topAnchor.constraint(equalTo: cityLable.bottomAnchor, constant: 20),
             temperatureLable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             temperatureLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
@@ -108,6 +132,10 @@ class WeatherDetailView: UIViewController {
             windLable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             windLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
+            saveTimeLable.topAnchor.constraint(equalTo: windLable.bottomAnchor, constant: 20),
+            saveTimeLable.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            saveTimeLable.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             loadData.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
             loadData.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadData.heightAnchor.constraint(equalToConstant: 50),
@@ -123,38 +151,96 @@ class WeatherDetailView: UIViewController {
     }
     
     private func updateUI() {
-        guard let weatherData = viewModel.weatherData else {
+        guard let weatherData = weatherData else {
             temperatureLable.text = "No Data"
             return
         }
         
+        cityLable.text = "City: \(weatherData.name)"
         temperatureLable.text = "Temperature: \(weatherData.main.temp) C"
         pressureLable.text = "Preasure: \(weatherData.main.pressure)"
         humidityLable.text = "Humidity: \(weatherData.main.humidity)"
         descriptionLable.text = "Weather: \(weatherData.weather[0].description)"
         windLable.text = "Wind: \(windDirection(deg: weatherData.wind.deg))"
+        
+        if let storedWeather = storedWeather {
+            saveTimeLable.text = "Saved: \(formateDate(timeInterval: storedWeather.time))"
+        } else {
+            saveTimeLable.text = "Saved: No data"
+        }
 
     }
+    
+
     
     private func setupAction() {
         saveData.addTarget(self, action: #selector(saveAction), for: .touchUpInside)
         loadData.addTarget(self, action: #selector(loadAction), for: .touchUpInside)
     }
     
+    
     @objc func saveAction() {
         Task {
-            viewModel.saveWeather()
+            guard let weatherData = weatherData else {
+                temperatureLable.text = "No Data"
+                return
+            }
+            
+            storedWeather = StoredWeatherData(weather: weatherData, time: Date().timeIntervalSince1970)
+            
+            guard let storedWeather = storedWeather else {
+                temperatureLable.text = "No Data"
+                return
+            }
+            
+            viewModel.saveWeather(weather: storedWeather)
+            
         }
         
     }
     
     @objc func loadAction() {
-        
+        checkAndUpdateWeather()
+    }
+    
+    
+    private func checkAndUpdateWeather() {
         Task {
-            viewModel.loadWeather()
-            updateUI()
+            if let storedWeather = viewModel.loadWeather() {
+                
+                if viewModel.shouldUpdateWeather(storedWeather: storedWeather) {
+                    
+                    print("Data need to update")
+                    viewModel.fetchWeather(for: storedWeather.weather.name) { [weak self] result in
+                        guard let newWeather = result else { return }
+                        
+                        let newStoredWeather = StoredWeatherData(weather: newWeather, time: Date().timeIntervalSince1970)
+                        self?.viewModel.saveWeather(weather: newStoredWeather)
+                        self?.weatherData = newWeather
+                        self?.storedWeather = newStoredWeather
+                        self?.updateUI()
+                    }
+                } else {
+                    
+                    print("Data is up to date")
+                    self.weatherData = storedWeather.weather
+                    self.storedWeather = storedWeather
+                    self.updateUI()
+                }
+                
+            } else {
+                
+                print("Data not found")
+            }
         }
-        
+    }
+    
+    
+    private func formateDate(timeInterval: TimeInterval) -> String{
+        let date = Date(timeIntervalSince1970: timeInterval)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter.string(from: date)
     }
     
     private func windDirection(deg: Int) -> String {
