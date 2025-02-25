@@ -59,7 +59,7 @@ class WeatherView: UIViewController {
     private var cityConstraint: [NSLayoutConstraint] = []
     private var coordinateConstraint: [NSLayoutConstraint] = []
     private var network = NetworkManager.shared
-    private let updateTime: TimeInterval = 3 * 60 * 60
+ 
 
     private let viewModel = WeatherViewModel()
 
@@ -195,7 +195,6 @@ class WeatherView: UIViewController {
     
     private func showWeatherDetails(with data: WeatherResult) {
         let detailVC = WeatherDetailView()
-        //detailVC.setuoFetchClouser(from: viewModel)
         detailVC.weatherData = data
         navigationController?.pushViewController(detailVC, animated: true)
     }

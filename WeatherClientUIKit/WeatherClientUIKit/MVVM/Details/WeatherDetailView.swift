@@ -92,7 +92,7 @@ class WeatherDetailView: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        checkAndUpdateWeather()
+        //checkAndUpdateWeather()
 
     }
     
@@ -179,6 +179,26 @@ class WeatherDetailView: UIViewController {
     }
     
     
+//    @objc func saveAction() {
+//        Task {
+//            guard let weatherData = weatherData else {
+//                temperatureLable.text = "No Data"
+//                return
+//            }
+//            
+//            storedWeather = StoredWeatherData(weather: weatherData, time: Date().timeIntervalSince1970)
+//            
+//            guard let storedWeather = storedWeather else {
+//                temperatureLable.text = "No Data"
+//                return
+//            }
+//            
+//            viewModel.saveWeather(weather: storedWeather)
+//            
+//        }
+//        
+//    }
+    
     @objc func saveAction() {
         Task {
             guard let weatherData = weatherData else {
@@ -186,21 +206,22 @@ class WeatherDetailView: UIViewController {
                 return
             }
             
-            storedWeather = StoredWeatherData(weather: weatherData, time: Date().timeIntervalSince1970)
-            
-            guard let storedWeather = storedWeather else {
-                temperatureLable.text = "No Data"
-                return
-            }
-            
-            viewModel.saveWeather(weather: storedWeather)
+            viewModel.saveWeatherCoreData(weather: weatherData)
             
         }
         
     }
     
+//    @objc func loadAction() {
+//        checkAndUpdateWeather()
+//    }
+    
     @objc func loadAction() {
-        checkAndUpdateWeather()
+        let result = viewModel.fetchSavedWeather()
+        
+        
+        
+        temperatureLable.text = "\(result?.name)"
     }
     
     
