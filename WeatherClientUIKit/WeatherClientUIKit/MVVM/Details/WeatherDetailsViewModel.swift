@@ -14,7 +14,7 @@ class WeatherDetailsViewModel {
     private let fileService: FileServiceProtocol
     private let coreData = CoreDataService.shared
     private let fileName = "WeatherData.json"
-    private let updateInterval: TimeInterval = 3 * 60 * 60 // 3 hours
+    private let updateInterval: TimeInterval = 10// 3 hours
     
     private var isUpdating = false
     
@@ -34,6 +34,11 @@ class WeatherDetailsViewModel {
     func saveWeatherCoreData(weather: WeatherResult) {
         
         let context = CoreDataService.shared.context
+        
+        // Видаляємо старі дані перед збереженням нових
+        if let existingWeather = fetchSavedWeather() {
+            context.delete(existingWeather)
+        }
         
         let weatherObject = CDWeather(context: context)
         weatherObject.id = Int64(weather.id)
@@ -95,7 +100,10 @@ class WeatherDetailsViewModel {
         coreData.deleteAll(CDWeather.self)
     }
     
-    
+    func shouldCoreDataUpdateWeather(storedWeather: CDWeather) -> Bool {
+            let currentTime = Date().timeIntervalSince1970
+        return (currentTime - (storedWeather.date?.timeIntervalSince1970 ?? 0)) > updateInterval
+    }
     
     func shouldUpdateWeather(storedWeather: StoredWeatherData) -> Bool {
             let currentTime = Date().timeIntervalSince1970

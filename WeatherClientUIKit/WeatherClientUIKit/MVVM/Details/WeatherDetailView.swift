@@ -85,7 +85,13 @@ class WeatherDetailView: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        updateUI()
+        
+        if let weatherData = weatherData {
+            updateUI()
+        } else {
+            updateUICoreData(weather: viewModel.fetchSavedWeather()!)
+        }
+        
         setupAction()
     }
     
@@ -176,16 +182,15 @@ class WeatherDetailView: UIViewController {
         
         cityLable.text = "City: \(weather.name ?? "Unknown")"
         temperatureLable.text = "Temperature \(weather.main?.temp ?? 0.0) C"
-        
-//        temperatureLable.text = "Temperature: \() C"
+
         pressureLable.text = "Preasure: \(weather.main?.preasure ?? 0)"
         humidityLable.text = "Humidity: \(weather.main?.humidity ?? 0)"
         windLable.text = "Wind: \(windDirection(deg: Int(weather.wind?.deg ?? 0)))"
+        saveTimeLable.text = "Saved: \(formateDate(timeInterval: weather.date?.timeIntervalSince1970 ?? 0))"
         
 
     }
     
-
     
     private func setupAction() {
         saveData.addTarget(self, action: #selector(saveAction), for: .touchUpInside)
@@ -220,8 +225,6 @@ class WeatherDetailView: UIViewController {
                 return
             }
             
-            viewModel.deleteAllWeather()
-            
             viewModel.saveWeatherCoreData(weather: weatherData)
             
         }
@@ -235,14 +238,67 @@ class WeatherDetailView: UIViewController {
     @objc func loadAction() {
         
         
-        let result = viewModel.fetchSavedWeather()
+//        let result = viewModel.fetchSavedWeather()
+//        
+//        guard let result = result else {
+//            temperatureLable.text = "No data"
+//            return
+//        }
+//        
+//        updateUICoreData(weather: result)
         
-        guard let result = result else {
-            temperatureLable.text = "No data"
+        checkCoreDataDateUpdate()
+    }
+    
+    private func checkCoreDataDateUpdate() {
+        
+        guard let result = viewModel.fetchSavedWeather() else {
+            print("No data found")
             return
         }
         
-        updateUICoreData(weather: result)
+        if viewModel.shouldCoreDataUpdateWeather(storedWeather: result) {
+            print("Data need to update")
+            
+            
+            
+            viewModel.fetchWeather(for: result.name ?? "Lviv") { [weak self] weather in
+                
+                guard let newWeather = weather else { return }
+                
+                self?.viewModel.saveWeatherCoreData(weather: newWeather)
+                
+                if let updateWeather = self?.viewModel.fetchSavedWeather() {
+                    print("Saving weather with date:", updateWeather.date)
+                    self?.updateUICoreData(weather: updateWeather)
+                } else {
+                    print("Faild load data")
+                }
+            }
+        } else {
+            print("Data is up to date")
+            self.updateUICoreData(weather: result)
+        }
+        
+//        if let result = viewModel.fetchSavedWeather() {
+//            
+//            if viewModel.shouldCoreDataUpdateWeather(storedWeather: result) {
+//                
+//                print("Data need to update")
+//                
+//                viewModel.fetchWeather(for: result.name ?? "Lviv") { [weak self] data in
+//                    guard let newWeather = data else { return }
+//                    
+//                    self?.viewModel.saveWeatherCoreData(weather: newWeather)
+//                    self?.updateUICoreData(weather: (self?.viewModel.fetchSavedWeather())!)
+//                }
+//            } else {
+//                print("Data is up to date")
+//                self.updateUICoreData(weather: (self.viewModel.fetchSavedWeather())!)
+//            }
+//        } else {
+//            print("Data not found!")
+//        }
     }
     
     
