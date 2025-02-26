@@ -151,6 +151,7 @@ class WeatherDetailView: UIViewController {
     }
     
     private func updateUI() {
+        
         guard let weatherData = weatherData else {
             temperatureLable.text = "No Data"
             return
@@ -168,6 +169,19 @@ class WeatherDetailView: UIViewController {
         } else {
             saveTimeLable.text = "Saved: No data"
         }
+
+    }
+    
+    private func updateUICoreData(weather: CDWeather) {
+        
+        cityLable.text = "City: \(weather.name ?? "Unknown")"
+        temperatureLable.text = "Temperature \(weather.main?.temp ?? 0.0) C"
+        
+//        temperatureLable.text = "Temperature: \() C"
+        pressureLable.text = "Preasure: \(weather.main?.preasure ?? 0)"
+        humidityLable.text = "Humidity: \(weather.main?.humidity ?? 0)"
+        windLable.text = "Wind: \(windDirection(deg: Int(weather.wind?.deg ?? 0)))"
+        
 
     }
     
@@ -206,6 +220,8 @@ class WeatherDetailView: UIViewController {
                 return
             }
             
+            viewModel.deleteAllWeather()
+            
             viewModel.saveWeatherCoreData(weather: weatherData)
             
         }
@@ -217,11 +233,16 @@ class WeatherDetailView: UIViewController {
 //    }
     
     @objc func loadAction() {
+        
+        
         let result = viewModel.fetchSavedWeather()
         
+        guard let result = result else {
+            temperatureLable.text = "No data"
+            return
+        }
         
-        
-        temperatureLable.text = "\(result?.name)"
+        updateUICoreData(weather: result)
     }
     
     

@@ -170,6 +170,7 @@ class WeatherView: UIViewController {
     }
     
     @objc func showSavedDataAction() {
+        
         let detailVC = WeatherDetailView()
         detailVC.loadAction()
         navigationController?.pushViewController(detailVC, animated: true)

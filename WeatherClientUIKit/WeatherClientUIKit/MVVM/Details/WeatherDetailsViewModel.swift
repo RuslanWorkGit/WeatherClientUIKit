@@ -75,13 +75,27 @@ class WeatherDetailsViewModel {
     }
     
     func fetchSavedWeather() -> CDWeather? {
+        
         let request: NSFetchRequest<CDWeather> = CDWeather.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
         request.fetchLimit = 1
         
+        
         let result = coreData.fetchDataFromEntity(CDWeather.self, fetchRequest: request)
+        
+//        guard let weather = result.first, let _ = weather.name, let main = weather.main, let coord = weather.coord, let wind = weather.wind else {
+//            return nil
+//        }
+        
         return result.first
     }
+    
+    
+    func deleteAllWeather() {
+        coreData.deleteAll(CDWeather.self)
+    }
+    
+    
     
     func shouldUpdateWeather(storedWeather: StoredWeatherData) -> Bool {
             let currentTime = Date().timeIntervalSince1970
