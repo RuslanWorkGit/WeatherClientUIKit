@@ -22,14 +22,6 @@ class WeatherDetailsViewModel {
         self.fileService = fileService
     }
     
-    func saveWeather(weather: StoredWeatherData) {
-        do {
-            try fileService.save(object: weather, fileName: fileName)
-            print("Succesfull saved data")
-        } catch {
-            print("Failed to save data", error)
-        } 
-    }
     
     func saveWeatherCoreData(weather: WeatherResult) {
         
@@ -68,17 +60,6 @@ class WeatherDetailsViewModel {
         coreData.save(context: context)
 
     }
-
-    
-    func loadWeather() -> StoredWeatherData? {
-        do {
-            return try fileService.load(type: StoredWeatherData.self, fileName: fileName)
-        } catch {
-            print("Failled to load data", error)
-            return nil
-        }
-       
-    }
     
     func fetchSavedWeather() -> CDWeather? {
         
@@ -86,20 +67,14 @@ class WeatherDetailsViewModel {
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
         request.fetchLimit = 1
         
-        
         let result = coreData.fetchDataFromEntity(CDWeather.self, fetchRequest: request)
-        
-//        guard let weather = result.first, let _ = weather.name, let main = weather.main, let coord = weather.coord, let wind = weather.wind else {
-//            return nil
-//        }
-        
         return result.first
     }
-    
     
     func deleteAllWeather() {
         coreData.deleteAll(CDWeather.self)
     }
+    
     
     func shouldCoreDataUpdateWeather(storedWeather: CDWeather) -> Bool {
             let currentTime = Date().timeIntervalSince1970
@@ -115,6 +90,26 @@ class WeatherDetailsViewModel {
     func fetchWeather(for city: String, completion: @escaping (WeatherResult?) -> Void) {
         network.fetchWeather(byCyti: city) { result in
             completion(result)
+        }
+    }
+    
+    //Save weather to file
+    func saveWeather(weather: StoredWeatherData) {
+        do {
+            try fileService.save(object: weather, fileName: fileName)
+            print("Succesfull saved data")
+        } catch {
+            print("Failed to save data", error)
+        }
+    }
+    
+    //load weather from file
+    func loadWeather() -> StoredWeatherData? {
+        do {
+            return try fileService.load(type: StoredWeatherData.self, fileName: fileName)
+        } catch {
+            print("Failled to load data", error)
+            return nil
         }
     }
 }
