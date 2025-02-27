@@ -43,6 +43,7 @@ class WeatherDetailsViewModel {
         let weatherObject = CDWeather(context: context)
         weatherObject.id = Int64(weather.id)
         weatherObject.name = weather.name
+        weatherObject.weatherDescription = weather.weather.first?.description
         weatherObject.date = Date()
         
         let coordObject = CDCoord(context: context)

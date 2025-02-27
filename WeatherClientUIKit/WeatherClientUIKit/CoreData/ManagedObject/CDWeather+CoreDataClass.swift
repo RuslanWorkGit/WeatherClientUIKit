@@ -2,7 +2,7 @@
 //  CDWeather+CoreDataClass.swift
 //  WeatherClientUIKit
 //
-//  Created by Ruslan Liulka on 25.02.2025.
+//  Created by Ruslan Liulka on 27.02.2025.
 //
 //
 

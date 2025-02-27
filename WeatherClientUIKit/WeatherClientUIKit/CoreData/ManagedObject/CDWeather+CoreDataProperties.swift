@@ -2,7 +2,7 @@
 //  CDWeather+CoreDataProperties.swift
 //  WeatherClientUIKit
 //
-//  Created by Ruslan Liulka on 25.02.2025.
+//  Created by Ruslan Liulka on 27.02.2025.
 //
 //
 
@@ -19,6 +19,7 @@ extension CDWeather {
     @NSManaged public var date: Date?
     @NSManaged public var id: Int64
     @NSManaged public var name: String?
+    @NSManaged public var weatherDescription: String?
     @NSManaged public var coord: CDCoord?
     @NSManaged public var main: CDMain?
     @NSManaged public var wind: CDWind?

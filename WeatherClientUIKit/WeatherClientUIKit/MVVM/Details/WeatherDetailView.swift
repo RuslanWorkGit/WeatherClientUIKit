@@ -186,6 +186,7 @@ class WeatherDetailView: UIViewController {
         pressureLable.text = "Preasure: \(weather.main?.preasure ?? 0)"
         humidityLable.text = "Humidity: \(weather.main?.humidity ?? 0)"
         windLable.text = "Wind: \(windDirection(deg: Int(weather.wind?.deg ?? 0)))"
+        descriptionLable.text = "Weather: \(weather.weatherDescription ?? "None")"
         saveTimeLable.text = "Saved: \(formateDate(timeInterval: weather.date?.timeIntervalSince1970 ?? 0))"
         
 
