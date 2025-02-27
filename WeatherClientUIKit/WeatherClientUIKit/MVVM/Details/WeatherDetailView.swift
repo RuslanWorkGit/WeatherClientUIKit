@@ -86,7 +86,7 @@ class WeatherDetailView: UIViewController {
         view.backgroundColor = .white
         setupUI()
         
-        if let weatherData = weatherData {
+        if weatherData != nil {
             updateUI()
         } else {
             updateUICoreData(weather: viewModel.fetchSavedWeather()!)
@@ -156,6 +156,7 @@ class WeatherDetailView: UIViewController {
         ])
     }
     
+    //MARK: - Update UI function from search and load from CoreData
     private func updateUI() {
         
         guard let weatherData = weatherData else {
@@ -188,36 +189,14 @@ class WeatherDetailView: UIViewController {
         windLable.text = "Wind: \(windDirection(deg: Int(weather.wind?.deg ?? 0)))"
         descriptionLable.text = "Weather: \(weather.weatherDescription ?? "None")"
         saveTimeLable.text = "Saved: \(formateDate(timeInterval: weather.date?.timeIntervalSince1970 ?? 0))"
-        
-
     }
     
-    
+    //MARK: - setup action for button save and load
     private func setupAction() {
         saveData.addTarget(self, action: #selector(saveAction), for: .touchUpInside)
         loadData.addTarget(self, action: #selector(loadAction), for: .touchUpInside)
     }
     
-    
-//    @objc func saveAction() {
-//        Task {
-//            guard let weatherData = weatherData else {
-//                temperatureLable.text = "No Data"
-//                return
-//            }
-//            
-//            storedWeather = StoredWeatherData(weather: weatherData, time: Date().timeIntervalSince1970)
-//            
-//            guard let storedWeather = storedWeather else {
-//                temperatureLable.text = "No Data"
-//                return
-//            }
-//            
-//            viewModel.saveWeather(weather: storedWeather)
-//            
-//        }
-//        
-//    }
     
     @objc func saveAction() {
         Task {
@@ -229,28 +208,15 @@ class WeatherDetailView: UIViewController {
             viewModel.saveWeatherCoreData(weather: weatherData)
             
         }
-        
     }
     
-//    @objc func loadAction() {
-//        checkAndUpdateWeather()
-//    }
     
     @objc func loadAction() {
-        
-        
-//        let result = viewModel.fetchSavedWeather()
-//        
-//        guard let result = result else {
-//            temperatureLable.text = "No data"
-//            return
-//        }
-//        
-//        updateUICoreData(weather: result)
         
         checkCoreDataDateUpdate()
     }
     
+    //MARK: - Check last update(if more than 3 hours update weather)
     private func checkCoreDataDateUpdate() {
         
         guard let result = viewModel.fetchSavedWeather() else {
@@ -260,9 +226,7 @@ class WeatherDetailView: UIViewController {
         
         if viewModel.shouldCoreDataUpdateWeather(storedWeather: result) {
             print("Data need to update")
-            
-            
-            
+
             viewModel.fetchWeather(for: result.name ?? "Lviv") { [weak self] weather in
                 
                 guard let newWeather = weather else { return }
@@ -270,7 +234,6 @@ class WeatherDetailView: UIViewController {
                 self?.viewModel.saveWeatherCoreData(weather: newWeather)
                 
                 if let updateWeather = self?.viewModel.fetchSavedWeather() {
-                    print("Saving weather with date:", updateWeather.date)
                     self?.updateUICoreData(weather: updateWeather)
                 } else {
                     print("Faild load data")
@@ -281,59 +244,9 @@ class WeatherDetailView: UIViewController {
             self.updateUICoreData(weather: result)
         }
         
-//        if let result = viewModel.fetchSavedWeather() {
-//            
-//            if viewModel.shouldCoreDataUpdateWeather(storedWeather: result) {
-//                
-//                print("Data need to update")
-//                
-//                viewModel.fetchWeather(for: result.name ?? "Lviv") { [weak self] data in
-//                    guard let newWeather = data else { return }
-//                    
-//                    self?.viewModel.saveWeatherCoreData(weather: newWeather)
-//                    self?.updateUICoreData(weather: (self?.viewModel.fetchSavedWeather())!)
-//                }
-//            } else {
-//                print("Data is up to date")
-//                self.updateUICoreData(weather: (self.viewModel.fetchSavedWeather())!)
-//            }
-//        } else {
-//            print("Data not found!")
-//        }
     }
-    
-    
-    private func checkAndUpdateWeather() {
-        Task {
-            if let storedWeather = viewModel.loadWeather() {
-                
-                if viewModel.shouldUpdateWeather(storedWeather: storedWeather) {
-                    
-                    print("Data need to update")
-                    viewModel.fetchWeather(for: storedWeather.weather.name) { [weak self] result in
-                        guard let newWeather = result else { return }
-                        
-                        let newStoredWeather = StoredWeatherData(weather: newWeather, time: Date().timeIntervalSince1970)
-                        self?.viewModel.saveWeather(weather: newStoredWeather)
-                        self?.weatherData = newWeather
-                        self?.storedWeather = newStoredWeather
-                        self?.updateUI()
-                    }
-                } else {
-                    
-                    print("Data is up to date")
-                    self.weatherData = storedWeather.weather
-                    self.storedWeather = storedWeather
-                    self.updateUI()
-                }
-                
-            } else {
-                
-                print("Data not found")
-            }
-        }
-    }
-    
+
+    //MARK: - Additional function to formate the data and write wind direction
     
     private func formateDate(timeInterval: TimeInterval) -> String{
         let date = Date(timeIntervalSince1970: timeInterval)
@@ -365,5 +278,61 @@ class WeatherDetailView: UIViewController {
         }
 
     }
+    
+    //    @objc func loadAction() {
+    //        checkAndUpdateWeather()
+    //    }
+    
+    
+//    private func checkAndUpdateWeather() {
+    //        Task {
+    //            if let storedWeather = viewModel.loadWeather() {
+    //
+    //                if viewModel.shouldUpdateWeather(storedWeather: storedWeather) {
+    //
+    //                    print("Data need to update")
+    //                    viewModel.fetchWeather(for: storedWeather.weather.name) { [weak self] result in
+    //                        guard let newWeather = result else { return }
+    //
+    //                        let newStoredWeather = StoredWeatherData(weather: newWeather, time: Date().timeIntervalSince1970)
+    //                        self?.viewModel.saveWeather(weather: newStoredWeather)
+    //                        self?.weatherData = newWeather
+    //                        self?.storedWeather = newStoredWeather
+    //                        self?.updateUI()
+    //                    }
+    //                } else {
+    //
+    //                    print("Data is up to date")
+    //                    self.weatherData = storedWeather.weather
+    //                    self.storedWeather = storedWeather
+    //                    self.updateUI()
+    //                }
+    //
+    //            } else {
+    //
+    //                print("Data not found")
+    //            }
+    //        }
+    //    }
+    
+    //    @objc func saveAction() {
+    //        Task {
+    //            guard let weatherData = weatherData else {
+    //                temperatureLable.text = "No Data"
+    //                return
+    //            }
+    //
+    //            storedWeather = StoredWeatherData(weather: weatherData, time: Date().timeIntervalSince1970)
+    //
+    //            guard let storedWeather = storedWeather else {
+    //                temperatureLable.text = "No Data"
+    //                return
+    //            }
+    //
+    //            viewModel.saveWeather(weather: storedWeather)
+    //
+    //        }
+    //
+    //    }
     
 }
