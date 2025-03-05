@@ -12,12 +12,6 @@ extension CoreDataService {
     
     func createWeathreResult(with weather: WeatherResult) -> CDWeather {
         
-//        let weatherEntity = NSEntityDescription.entity(forEntityName: "CDWeather", in: context)!
-//        
-//        let weatherObject = NSManagedObject(entity: weatherEntity, insertInto: context)
-//        
-//        weatherObject.setValue(weather.id, forKey: "id")
-        
         let weatherObject = CDWeather(context: context)
         weatherObject.id = Int64(weather.id)
         weatherObject.name = weather.name

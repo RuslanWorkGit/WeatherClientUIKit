@@ -14,7 +14,7 @@ class WeatherDetailsViewModel {
     private let fileService: FileServiceProtocol
     private let coreData = CoreDataService.shared
     private let fileName = "WeatherData.json"
-    private let updateInterval: TimeInterval = 10// 3 hours
+    private let updateInterval: TimeInterval = 3 * 60 * 60// 3 hours
     
     private var isUpdating = false
     
@@ -25,7 +25,7 @@ class WeatherDetailsViewModel {
     
     func saveWeatherCoreData(weather: WeatherResult) {
         
-        let context = CoreDataService.shared.context
+        let context = coreData.context
         
         // Видаляємо старі дані перед збереженням нових
         if let existingWeather = fetchSavedWeather() {
@@ -64,7 +64,9 @@ class WeatherDetailsViewModel {
     func fetchSavedWeather() -> CDWeather? {
         
         let request: NSFetchRequest<CDWeather> = CDWeather.fetchRequest()
+        // Сортування за датою, буде повертати від найстарішого до найновішого
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        // Поверне 1 елемент тобто найстаріший
         request.fetchLimit = 1
         
         let result = coreData.fetchDataFromEntity(CDWeather.self, fetchRequest: request)
